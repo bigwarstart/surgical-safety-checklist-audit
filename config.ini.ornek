@@ -1,0 +1,30 @@
+; Ayarlar. Bu dosyayı kopyalayıp adını "config.ini" yapın ve aşağıdaki bilgileri doldurun.
+; config.ini dosyası şifre içerir: ASLA GitHub'a veya paylaşılan bir klasöre koymayın.
+
+[veritabani]
+; HBYS'nin Oracle sunucusu
+sunucu = 192.168.1.XXX
+port = 1521
+; Oracle servis adı (eski sistemlerde servis_adi yerine sid = ... yazın)
+servis_adi = SERVIS_ADI
+; Bu uygulama sadece okuma yapar: SADECE SELECT yetkisi olan ayrı bir kullanıcı açın.
+kullanici = KULLANICI_ADI
+sifre = SIFRE
+; Oracle 11g ve öncesi için Instant Client klasörü (gerekmiyorsa boş bırakın)
+istemci_klasoru =
+
+[uygulama]
+port = 5051
+hastane_no = 1
+; Ekranda görünecek başlık (boş bırakılırsa varsayılan başlık kullanılır)
+baslik =
+; true yapılırsa veritabanına bağlanmadan uydurma verilerle çalışır
+demo = false
+
+[guvenlik]
+; Raporlarda hasta adı gibi kişisel veriler var (KVKK). En az birini kullanmanız önerilir.
+; Sadece bu ağlardan erişilebilsin (virgülle ayırın), ör: 192.168.1.0/24, 10.0.5.20/32
+izinli_ag =
+; Doluysa tarayıcı kullanıcı adı ve şifre sorar
+kullanici =
+sifre =

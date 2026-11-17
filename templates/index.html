@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ baslik }}</title>
+<style>
+  :root{
+    --bg:#eef2f6; --panel:#ffffff; --ink:#15232b; --muted:#5b6b75; --line:#d6dee5;
+    --brand:#123b5c; --c:#0f8b8d; --c-soft:#e3f4f4;
+    --ok:#1f8a4c; --bad:#d23c3c; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.45 "Segoe UI",Tahoma,Arial,sans-serif}
+
+  header{background:linear-gradient(110deg,var(--h1) 0%,var(--h2) 100%);color:#fff;padding:22px 32px;
+         display:flex;align-items:center;gap:16px;box-shadow:0 3px 14px rgba(13,46,74,.25)}
+  header .logo{width:50px;height:50px;border-radius:12px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:27px}
+  header h1{margin:0;font-size:25px;font-weight:700;letter-spacing:.3px}
+  header p{margin:3px 0 0;font-size:14px;opacity:.88}
+
+  .layout{display:grid;grid-template-columns:250px 1fr;gap:18px;max-width:1560px;margin:24px auto;padding:0 16px}
+  nav{display:flex;flex-direction:column;gap:12px}
+  nav .navtitle{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:2px 6px 2px}
+  .menu{all:unset;cursor:pointer;display:flex;gap:14px;align-items:center;background:var(--panel);border:2px solid transparent;
+        border-left:6px solid var(--mc);border-radius:var(--radius);padding:12px 12px;box-shadow:0 2px 8px rgba(20,40,60,.07);
+        transition:transform .12s, box-shadow .12s, background .12s}
+  .menu:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(20,40,60,.13)}
+  .menu .ic{flex:none;width:40px;height:40px;border-radius:12px;background:var(--mc);color:#fff;display:grid;place-items:center;font-size:23px;
+            box-shadow:0 3px 8px rgba(0,0,0,.15)}
+  .menu b{display:block;font-size:15.5px;font-weight:700;color:var(--ink)}
+  .menu small{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+  .menu.active{background:var(--mc-soft);border-color:var(--mc)}
+  .menu.active b{color:var(--mc)}
+
+  .panel{background:var(--panel);border-radius:var(--radius);min-width:0;overflow:hidden;box-shadow:0 4px 18px rgba(20,40,60,.09)}
+  .phead{background:var(--c);color:#fff;padding:18px 24px;display:flex;align-items:center;gap:14px}
+  .phead .ic{width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.22);display:grid;place-items:center;font-size:25px}
+  .phead h2{margin:0;font-size:22px;font-weight:700}
+  .phead p{margin:2px 0 0;font-size:14px;opacity:.92}
+  .pbody{padding:18px 18px}
+
+  .filters{display:flex;flex-wrap:wrap;gap:16px 22px;align-items:flex-end;background:#f6f9fb;border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .field label{display:block;font-size:12.5px;color:#34505f;margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  input[type=datetime-local],input[type=search]{font:inherit;font-size:15.5px;padding:10px 12px;border:2px solid #c3cfd8;border-radius:9px;background:#fff;color:var(--ink)}
+  input:focus{outline:none;border-color:var(--c);box-shadow:0 0 0 3px var(--c-soft)}
+  .quick{display:flex;gap:7px}
+  .chip{font:inherit;font-size:14px;font-weight:600;border:2px solid var(--c);background:#fff;color:var(--c);border-radius:20px;padding:7px 14px;cursor:pointer}
+  .chip:hover{background:var(--c);color:#fff}
+  .btn{font:inherit;font-weight:700;border:none;border-radius:10px;padding:12px 24px;cursor:pointer;font-size:15.5px;
+       box-shadow:0 2px 6px rgba(0,0,0,.12);transition:filter .12s, transform .12s}
+  .btn:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}
+  .btn-primary{background:var(--c);color:#fff;padding:13px 34px;font-size:16.5px}
+  .btn-excel{background:#1f8a4c;color:#fff}
+  .btn-print{background:#4a5d6b;color:#fff}
+  .btn-copy{background:#6b4fbb;color:#fff}
+  .btn:disabled{opacity:.4;cursor:default;box-shadow:none}
+  .explain{margin:16px 0 0;padding:12px 16px;background:var(--c-soft);border-left:5px solid var(--c);border-radius:8px;font-size:14.5px;color:#22343e}
+
+  .resultbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:22px 0 12px}
+  .count{display:flex;align-items:baseline;gap:8px;background:var(--c);color:#fff;border-radius:12px;padding:8px 18px;box-shadow:0 3px 10px rgba(0,0,0,.12)}
+  .count b{font-size:28px;font-weight:800;line-height:1}
+  .count span{font-size:14.5px;opacity:.95}
+  .spacer{flex:1}
+  .ozet{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0 0}
+  .ozet div{background:var(--c-soft);border:2px solid var(--c);border-radius:12px;padding:10px 18px;min-width:150px}
+  .ozet b{display:block;font-size:24px;font-weight:800;color:var(--c);line-height:1.1}
+  .ozet div.vurgu{background:#fff4e5;border-color:#e65100}
+  .ozet div.vurgu b{color:#e65100}
+  .ozet div.tikla{cursor:pointer;transition:transform .12s, box-shadow .12s}
+  .ozet div.tikla:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(230,81,0,.25)}
+  .ozet div small{display:block;font-size:11.5px;font-weight:600;color:var(--c);margin-top:2px}
+  .ozet div.vurgu small{color:#e65100}
+  .ozet div.tikla.aktif{background:var(--c)}
+  .ozet div.vurgu.tikla.aktif{background:#e65100}
+  .ozet div.tikla.aktif span,.ozet div.tikla.aktif b,.ozet div.tikla.aktif small{color:#fff}
+  /* kendi rengi olan kutular (ör. lens depoları) */
+  .ozet div.renkli{background:var(--kc-acik);border:3px solid var(--kc);min-width:240px;box-shadow:0 3px 10px rgba(0,0,0,.12)}
+  .ozet div.renkli span,.ozet div.renkli b,.ozet div.renkli small{color:var(--kc)}
+  .ozet div.renkli.tikla.aktif{background:var(--kc)}
+  /* özet kutuları ve alt liste düğmeleri aynı satırda akar */
+  .ozetler{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0 0}
+  .ozetler:empty{display:none}
+  #ozet,#altlar{display:contents}
+  .arakutu{align-items:center;gap:10px}
+  .arakutu label{font-size:14px;font-weight:800;color:var(--c);letter-spacing:.5px;white-space:nowrap}
+  /* kompakt düzen (lens stok): arama "Lens Adı" sütununun hizasında, Excel / Yazdır hemen yanında */
+  .kompakt #sonucBar{gap:12px}
+  .kompakt #bas th:first-child, .kompakt #govde td:first-child{text-align:center}
+  .kompakt #sonucBar .arakutu{order:-2;gap:12px}
+  .kompakt #sonucBar .btn{order:-1}
+  .kompakt #sonucBar .arakutu label{display:inline-block;box-sizing:border-box;text-align:right;
+      font-size:19px;font-weight:900;letter-spacing:1px}
+  .kompakt #sonucBar .arakutu input{min-width:300px!important;font-weight:600;border-color:var(--c);border-width:2px}
+  .btn-alt{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:14px;min-width:300px;
+           --ac:#e65100;background:#fff;border:3px solid var(--ac);border-radius:12px;padding:10px 20px;color:var(--ac);
+           box-shadow:0 3px 10px rgba(0,0,0,.12);transition:transform .12s, box-shadow .12s, background .12s}
+  .btn-alt:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+  .btn-alt .ik{font-size:30px;line-height:1}
+  .btn-alt span{display:block;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+  .btn-alt b{display:block;font-size:26px;font-weight:800;line-height:1.1}
+  .btn-alt small{display:block;font-size:12.5px;opacity:.85}
+  .btn-alt.aktif{background:var(--ac);color:#fff}
+  .ozet span{font-size:13px;font-weight:600;color:#34505f;text-transform:uppercase;letter-spacing:.4px}
+  .tablewrap{border:1px solid var(--line);border-radius:12px;overflow:auto;max-height:62vh}
+  table{border-collapse:collapse;width:100%;font-size:14.5px}
+  thead th{position:sticky;top:0;background:var(--c);color:#fff;text-align:left;font-weight:700;padding:10px 10px;
+           white-space:nowrap;cursor:pointer;user-select:none;border-right:1px solid rgba(255,255,255,.18)}
+  thead th:hover{filter:brightness(1.1)}
+  th.num, td.num{text-align:right}
+  th.adet, th.orta, td.orta{text-align:center}
+  tbody td.adet{text-align:center;font-size:17px;font-weight:800;color:var(--c)}
+  tbody td.adet.sifir{color:#b0bec5;font-weight:600}
+  tbody td{padding:8px 10px;border-bottom:1px solid #e3e9ee;white-space:nowrap;max-width:420px;overflow:hidden;text-overflow:ellipsis}
+  tbody tr:nth-child(even){background:#f5f8fa}
+  tbody tr:hover{background:var(--c-soft)}
+  tbody td:nth-child(3){font-weight:600}
+  /* SKT listelerinde 3. sütun Depo; vurgu Lens Adı'nda kalsın */
+  tbody.skt-liste td:nth-child(3){font-weight:400}
+  tbody.skt-liste td:nth-child(2){font-weight:600}
+  tbody td.sarmal{max-width:none;overflow:visible}
+  .sorunlar{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+  .badge{display:inline-block;padding:3px 11px;border-radius:14px;font-size:12.5px;font-weight:700;color:#fff}
+  .badge.yes{background:var(--ok)}
+  .badge.no{background:var(--bad)}
+  .badge.warn{background:#e67700}
+  .badge.sari{background:#f9a825;color:#3e2723}
+  .badge.d-onceki{background:#1565c0}
+  .badge.d-sonraki{background:#6a1b9a}
+  .badge.d-ici{background:#78909c}
+  .empty{padding:48px;text-align:center;color:var(--muted);font-size:15.5px}
+  .error{background:#fdecec;color:#8c1f1f;border:2px solid #f2b8b8;padding:13px 16px;border-radius:10px;margin-top:16px;font-weight:600}
+  .muted{color:var(--muted)}
+  .printtitle{display:none}
+  .ozet .knot{display:block;font-style:normal;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;opacity:.85;margin-top:1px}
+  .kopya{all:unset;cursor:pointer;font-weight:700;color:var(--c);padding:3px 8px;border-radius:7px;border:2px solid transparent}
+  .kopya span{font-size:12px;opacity:.55}
+  .kopya:hover{background:var(--c-soft);border-color:var(--c)}
+  .kopya.son{background:var(--c);color:#fff}
+  .kopya.son span{opacity:1}
+  #bildirim{position:fixed;left:50%;bottom:28px;transform:translate(-50%,30px);opacity:0;background:#1d2a33;color:#fff;
+            padding:12px 22px;border-radius:12px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.25);transition:all .2s;pointer-events:none;z-index:9}
+  #bildirim.acik{opacity:1;transform:translate(-50%,0)}
+
+  /* Toplu çıkış girişi */
+  .filters select,.filters input[type=date],.filters input[type=number],.filters input[type=text]{
+    font:inherit;font-size:15.5px;padding:10px 12px;border:2px solid #c3cfd8;border-radius:9px;background:#fff;color:var(--ink)}
+  .filters select:focus{outline:none;border-color:var(--c);box-shadow:0 0 0 3px var(--c-soft)}
+  .dkkutu{position:relative;display:inline-block}
+  .dkkutu span{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--muted);pointer-events:none}
+  .chip.secili{background:var(--c);color:#fff}
+  .btn-apply{background:var(--c);color:#fff;padding:13px 28px;font-size:16.5px}
+  .btn-undo{background:#fff;color:#b23b3b;border:2px solid #b23b3b;padding:6px 14px;font-size:14px;box-shadow:none}
+  .btn-undo:hover:not(:disabled){background:#b23b3b;color:#fff}
+  tr.atla td{color:#8a99a3}
+  tr.atla td:nth-child(5){font-weight:400}
+  td.chk,th.chk{width:36px;text-align:center}
+  td.chk input,th.chk input{width:18px;height:18px;cursor:pointer;accent-color:var(--c)}
+  .yeni{font-weight:700;color:var(--c)}
+  tr.detay > td{padding:0 12px 14px 48px;background:#fff !important;max-width:none;border-bottom:2px solid var(--line)}
+  tr.detay:hover{background:#fff}
+  tr.acilir{cursor:pointer}
+  tr.acilir .ok{display:inline-block;width:12px;color:var(--c);font-weight:800}
+  tr.acilir.acik > td{background:var(--c-soft)!important;font-weight:700}
+  #govde tr.detay > td{padding:4px 16px 14px 56px}
+  table.ic{font-size:13.5px;border:1px solid var(--line);border-radius:8px;overflow:hidden;width:100%}
+  table.ic thead th{position:static;background:var(--c-soft);color:#34505f;padding:7px 10px;cursor:default}
+  table.ic td{padding:6px 10px}
+  table.ic tbody tr:nth-child(even){background:#f8fafb}
+  .basari{background:#e6f4ea;color:#1b5e20;border:2px solid #a5d6a7;padding:13px 16px;border-radius:10px;margin-top:16px;font-weight:600}
+
+  @media (max-width:900px){ .layout{grid-template-columns:1fr} }
+  @media print{
+    header,nav,.filters,.explain,.noprint,.phead{display:none!important}
+    body{background:#fff} .layout{display:block;margin:0;padding:0;max-width:none}
+    .panel{box-shadow:none} .pbody{padding:0}
+    .tablewrap{max-height:none;overflow:visible;border:none}
+    thead th{position:static;background:#ddd!important;color:#000}
+    .badge{color:#000;background:none!important;padding:0}
+    tbody td{max-width:none;white-space:normal}
+    .printtitle{display:block!important;font-size:16px;font-weight:700;margin-bottom:8px}
+    /* kompakt rapor (lens stok): A4 dikey sayfaya sığsın */
+    .kompakt .ozetler{display:none!important}
+    .kompakt table{font-size:11px;width:100%}
+    .kompakt thead th{white-space:normal;padding:5px 6px;font-size:11px;line-height:1.2}
+    .kompakt tbody td{white-space:nowrap;padding:4px 6px}
+    .kompakt tbody td.adet{font-size:12px}
+    .kompakt .printtitle{font-size:14px}
+  }
+  @page{size:A4 portrait;margin:10mm}
+</style>
+</head>
+<body style="--h1:{{ sayfa.renk1 }};--h2:{{ sayfa.renk2 }}">
+<header>
+  <div class="logo">{{ sayfa.ikon }}</div>
+  <div>
+    <h1>{{ baslik }}</h1>
+    <p>{{ sayfa.alt }}</p>
+  </div>
+</header>
+
+<div class="layout">
+  <nav>
+    <div class="navtitle">Raporlar</div>
+    {% for m in menu %}
+    <button class="menu" data-kod="{{ m.kod }}" style="--mc:{{ m.renk }};--mc-soft:{{ m.renk }}1a">
+      <span class="ic">{{ m.ikon }}</span>
+      <span><b>{{ m.menu }}</b><small>{{ m.alt }}</small></span>
+    </button>
+    {% endfor %}
+  </nav>
+
+  <section class="panel">
+    <div class="phead">
+      <div class="ic" id="raporIkon"></div>
+      <div><h2 id="raporBaslik"></h2><p id="raporAlt"></p></div>
+    </div>
+    <div class="pbody">
+
+    <div class="filters" id="raporFiltre">
+      <div class="field tarihalan">
+        <label for="t1" id="t1lbl">Başlangıç</label>
+        <input type="datetime-local" id="t1" step="1">
+      </div>
+      <div class="field tarihalan">
+        <label for="t2" id="t2lbl">Bitiş</label>
+        <input type="datetime-local" id="t2" step="1">
+      </div>
+      <div class="field tarihalan">
+        <label>Hızlı seçim</label>
+        <div class="quick">
+          <button class="chip" data-hizli="bugun">Bugün</button>
+          <button class="chip" data-hizli="buay">Bu ay</button>
+          <button class="chip" data-hizli="gecenay">Geçen ay</button>
+          <button class="chip" data-hizli="gecenceyrek">Geçen çeyrek</button>
+        </div>
+      </div>
+      <div class="field anlik" style="display:none"><label>&nbsp;</label><div id="anlikZaman" class="muted"></div></div>
+      <button class="btn btn-primary" id="sorgula">Sorgula</button>
+    </div>
+    <div class="explain" id="aciklama"></div>
+    <div id="hata"></div>
+
+    <div id="raporSonuc">
+    <div class="ozetler">
+      <div class="ozet" id="ozet"></div>
+      <div class="altlar noprint" id="altlar"></div>
+    </div>
+    <div class="resultbar" id="sonucBar">
+      <div class="count" id="sayac" style="display:none"></div>
+      <div class="spacer"></div>
+      <span class="arakutu noprint" id="araKutu" style="display:none">
+        <label for="ara" id="araEtiket" style="display:none"></label>
+        <input type="search" id="ara" placeholder="Listede ara…" style="min-width:240px">
+      </span>
+      <button class="btn btn-copy noprint" id="kopyala" style="display:none" disabled>📋 Protokol No'ları kopyala</button>
+      <button class="btn btn-excel noprint" id="excel" disabled>⬇ Excel</button>
+      <button class="btn btn-print noprint" id="yazdir" disabled>🖨 Yazdır</button>
+    </div>
+
+    <div class="printtitle" id="printtitle"></div>
+    <div class="tablewrap">
+      <table>
+        <thead id="bas"></thead>
+        <tbody id="govde"></tbody>
+      </table>
+    </div>
+    </div><!-- raporSonuc -->
+    </div>
+  </section>
+</div>
+
+<div id="bildirim"></div>
+<script>
+const MENU = {{ menu|tojson }};
+const $ = s => document.querySelector(s);
+let rapor = MENU[0], kolonlar = [], veri = [], siralama = {i:null, asc:true};
+// Alt liste (ör. ilaçsız lazer) açıkken gorunum = alt listenin kodu; anaSonuc = ana listenin yanıtı
+let gorunum = null, anaSonuc = null, altlar = [];
+// Satır ayrıntısı (lens: seri no / SKT). detayTuru: yanıttaki "detay"; acik: açık satırlar; onbellek: gelen ayrıntılar
+let detayTuru = null, acikDetay = new Set(), detayOnbellek = {};
+
+const pad = n => String(n).padStart(2,"0");
+const gun = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const fmt = s => s ? s.replace("T"," ").replace(/(\d+)-(\d+)-(\d+)/,"$3.$2.$1") : "";
+
+function hizli(tip){
+  const b = new Date(); let s, e;
+  if(tip==="bugun"){ s=e=b; }
+  else if(tip==="buay"){ s=new Date(b.getFullYear(), b.getMonth(), 1); e=b; }
+  else if(tip==="gecenceyrek"){ const q=Math.floor(b.getMonth()/3)*3; s=new Date(b.getFullYear(), q-3, 1); e=new Date(b.getFullYear(), q, 0); }
+  else { s=new Date(b.getFullYear(), b.getMonth()-1, 1); e=new Date(b.getFullYear(), b.getMonth(), 0); }
+  $("#t1").value = gun(s)+"T00:00:00";
+  $("#t2").value = gun(e)+"T23:59:59";
+}
+function esc(v){ return String(v ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function saniyeli(v){ return v && v.length===16 ? v+":00" : v; }
+function parametreler(){
+  return new URLSearchParams({ rapor: gorunum || rapor.kod, baslangic: saniyeli($("#t1").value), bitis: saniyeli($("#t2").value) });
+}
+
+function bos(mesaj){
+  $("#bas").innerHTML = "";
+  $("#govde").innerHTML = `<tr><td class="empty">${mesaj}</td></tr>`;
+}
+
+function raporSec(kod){
+  rapor = MENU.find(m => m.kod===kod);
+  document.querySelectorAll(".menu").forEach(b => b.classList.toggle("active", b.dataset.kod===kod));
+  document.documentElement.style.setProperty("--c", rapor.renk);
+  document.documentElement.style.setProperty("--c-soft", rapor.renk + "1f");
+  $("#raporIkon").textContent = rapor.ikon;
+  $("#raporBaslik").textContent = rapor.menu;
+  $("#raporAlt").textContent = rapor.alt;
+  $("#aciklama").innerHTML = rapor.aciklama;
+  $("#hata").innerHTML = "";
+  const anlik = !!rapor.tarihsiz;
+  document.querySelectorAll("#raporFiltre .tarihalan").forEach(e => e.style.display = anlik ? "none" : "");
+  document.querySelector("#raporFiltre .anlik").style.display = anlik ? "" : "none";
+  $("#sorgula").textContent = sorgulaYazi();
+  $("#t1lbl").textContent = rapor.tarih_etiketi + " başlangıç";
+  $("#t2lbl").textContent = rapor.tarih_etiketi + " bitiş";
+  veri = []; kolonlar = []; siralama = {i:null, asc:true};
+  $("#hata").innerHTML = "";
+  $("#sayac").style.display = "none"; $("#araKutu").style.display = "none";
+  // kompakt düzen: arama solda (etiketli), Excel / Yazdır üstte kutuların yanında
+  const kompakt = !!rapor.ara_etiketi;
+  $("#raporSonuc").classList.toggle("kompakt", kompakt);
+  $("#araEtiket").textContent = rapor.ara_etiketi || "";
+  $("#araEtiket").style.display = kompakt ? "" : "none";
+  $("#ara").placeholder = rapor.ara_ipucu || "Listede ara…";
+  $("#araEtiket").style.width = ""; $("#ara").style.width = "";
+  $("#excel").disabled = $("#yazdir").disabled = $("#kopyala").disabled = true;
+  $("#kopyala").style.display = rapor.kopyala!=null ? "inline-block" : "none";
+  $("#ozet").innerHTML = ""; $("#altlar").innerHTML = "";
+  gorunum = null; anaSonuc = null; altlar = [];
+  bos("Tarih aralığını seçip <b>Sorgula</b>'ya basın.");
+  if(anlik) sorgula();                      // anlık raporlar (lens stok) seçilince hemen gelir
+}
+const sorgulaYazi = () => rapor && rapor.tarihsiz ? "↻ Yenile" : "Sorgula";
+
+// Yanıttaki listeyi tabloya basar (ana liste ya da alt liste)
+function tabloyuDoldur(j, baslik){
+  kolonlar = j.kolonlar; veri = j.satirlar; siralama = {i:null, asc:true};
+  detayTuru = j.detay || null; acikDetay = new Set();
+  $("#sayac").innerHTML = `<b>${j.adet}</b><span>kayıt bulundu</span>`; $("#sayac").style.display = rapor.sayac_gizle ? "none" : "flex";
+  $("#araKutu").style.display = j.adet ? "flex":"none"; $("#ara").value="";
+  $("#excel").disabled = $("#yazdir").disabled = $("#kopyala").disabled = !j.adet;
+  const simdi = new Date().toLocaleString("tr-TR", {dateStyle:"short", timeStyle:"short"});
+  if(rapor.tarihsiz) $("#anlikZaman").textContent = `Son güncelleme: ${simdi}`;
+  $("#printtitle").textContent = rapor.tarihsiz ? `${rapor.menu} — ${baslik}  (${simdi} itibarıyla)`
+                                                : `${rapor.menu} — ${baslik}  (${fmt($("#t1").value)} / ${fmt($("#t2").value)})`;
+  ciz();
+}
+
+function ozetCiz(){
+  $("#ozet").innerHTML = ((anaSonuc && anaSonuc.ozet) || []).map(o => {
+    const sinif = [o.vurgu ? "vurgu" : "", o.alt ? "tikla" : "", o.alt && gorunum===o.alt ? "aktif" : ""].filter(Boolean).join(" ");
+    const alt = o.alt ? (gorunum===o.alt ? "<small>← geri dönmek için tıklayın</small>" : `<small>${esc(o.alt_yazi || "hastaları görmek için tıklayın")}</small>`) : "";
+    const renk = o.renk ? ` style="--kc:${esc(o.renk)};--kc-acik:${esc(o.renk_acik || "#fff")}"` : "";
+    return `<div${sinif || o.renk ? ` class="${sinif}${o.renk ? " renkli" : ""}"` : ""}${o.alt ? ` data-alt="${esc(o.alt)}"` : ""}${renk}><span>${esc(o.ad)}</span>${o.not ? `<em class="knot">${esc(o.not)}</em>` : ""}<b>${o.deger.toLocaleString("tr-TR")}</b>${alt}</div>`;
+  }).join("");
+}
+
+function altlariCiz(){
+  ozetCiz();
+  $("#altlar").innerHTML = altlar.filter(a => !a.kutu).map(a => `<button class="btn-alt${gorunum===a.kod ? " aktif" : ""}" data-alt="${esc(a.kod)}" style="--ac:${esc(a.renk || "#e65100")}">` +
+    (gorunum===a.kod
+      ? `<span class="ik">←</span><span>Sorunlu listeye dön<small>${esc(a.ad)} açık</small></span>`
+      : `<span class="ik">${esc(a.ikon || "📋")}</span><span>${esc(a.ad)}<b>${a.adet}</b><small>Listelemek için tıklayın</small></span>`) +
+    `</button>`).join("");
+}
+
+async function altListeAc(kod){
+  if(gorunum===kod){                       // ikinci tık: ana listeye dön
+    gorunum = null; altlariCiz(); tabloyuDoldur(anaSonuc, rapor.alt); return;
+  }
+  const a = altlar.find(x => x.kod===kod);
+  gorunum = kod; altlariCiz(); bos("Yükleniyor…"); $("#hata").innerHTML = "";
+  try{
+    const r = await fetch("api/liste?"+parametreler());
+    let j; try{ j = await r.json(); }catch{ throw new Error("Sunucudan geçersiz yanıt geldi ("+r.status+")."); }
+    if(!r.ok) throw new Error(j.hata || "Bilinmeyen hata");
+    if(gorunum===kod) tabloyuDoldur(j, a.ad);
+  }catch(e){
+    $("#hata").innerHTML = `<div class="error">${esc(e.message)}</div>`;
+    gorunum = null; altlariCiz(); tabloyuDoldur(anaSonuc, rapor.alt);
+  }
+}
+
+async function sorgula(){
+  if(!rapor.tarihsiz && (!$("#t1").value || !$("#t2").value)){ $("#hata").innerHTML='<div class="error">Lütfen iki tarihi de seçin.</div>'; return; }
+  $("#hata").innerHTML=""; $("#sorgula").disabled=true; $("#sorgula").textContent="Sorgulanıyor…";
+  bos("Yükleniyor…");
+  gorunum = null; $("#altlar").innerHTML = ""; detayOnbellek = {};   // Yenile: ayrıntılar da tazelensin
+  try{
+    const r = await fetch("api/liste?"+parametreler());
+    let j; try{ j = await r.json(); }catch{ throw new Error("Sunucudan geçersiz yanıt geldi ("+r.status+")."); }
+    if(!r.ok) throw new Error(j.hata || "Bilinmeyen hata");
+    anaSonuc = j;
+    // düğme listeleri + tıklanabilir özet kutuları (pay/payda)
+    altlar = (j.alt_listeler || []).concat((j.ozet || []).filter(o => o.alt).map(o => ({kod: o.alt, ad: o.alt_ad, kutu: true})));
+    altlariCiz();
+    tabloyuDoldur(j, rapor.alt);
+  }catch(e){
+    $("#hata").innerHTML = `<div class="error">${esc(e.message)}</div>`;
+    bos("Sonuç alınamadı.");
+  }finally{
+    $("#sorgula").disabled=false; $("#sorgula").textContent=sorgulaYazi();
+  }
+}
+
+function hucre(v, tip){
+  if(v===null || v===undefined || v==="") return '<span class="muted">—</span>';
+  if(tip==="durum"){
+    const iyi = v==="EVET" || v==="UYGUN";
+    return `<span class="badge ${iyi?"yes":"no"}">${esc(v)}</span>`;
+  }
+  if(tip==="donem") return `<span class="badge ${v.startsWith("Önceki")?"d-onceki":(v.startsWith("Sonraki")?"d-sonraki":"d-ici")}">${esc(v)}</span>`;
+  if(tip==="uyari") return `<span class="badge ${v==="Uygun"?"yes":(v.includes("açık kalmış")||v.includes("kapatılmamış")||v.includes("gün sonra")||v==="Çıkış yok"||v==="Girişten önce"?"no":"warn")}">${esc(v)}</span>`;
+  if(tip==="skt"){
+    const sinif = {"Normal":"yes", "İade edilmeli":"sari", "İade süresi geçti":"warn", "SKT geçmiş":"no"}[v] || "d-ici";
+    return `<span class="badge ${sinif}">${esc(v)}</span>`;
+  }
+  if(tip==="kalan_gun"){ const g=Math.round(Number(v)); return g<0 ? `${(-g).toLocaleString("tr-TR")} gün geçti` : g.toLocaleString("tr-TR"); }
+  if(tip==="kalan_ay"){ const a=Math.round(Number(v)); return a<0 ? "geçti" : String(a); }
+  if(tip==="stok") return `<span class="badge ${v==="Yeterli" ? "yes" : (v==="Kritik" ? "warn" : "no")}">${esc(v)}</span>`;
+  if(tip==="sorunlar") return '<div class="sorunlar">' + String(v).split("; ").map(s =>
+    `<span class="badge ${s.startsWith("Uygun işaretli") ? "warn" : "no"}">${esc(s)}</span>`).join("") + "</div>";
+  if(tip==="ondalik") return Number(v).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2});
+  return esc(v);
+}
+
+function ciz(){
+  // SKT listelerinde (Lens Adı ilk sütun) vurguyu Lens Adı'na ver
+  $("#govde").classList.toggle("skt-liste", (kolonlar||[]).length > 0 && kolonlar[0].ad === "Lens Adı");
+  // hücre sınıfı: sayılar sağa; "adet" (stok rakamları) ortada ve kalın; durum rozetleri ortada
+  const sag = (t, v) => (t==="sayi"||t==="ondalik") ? ' class="num"'
+                      : t==="adet" ? ` class="adet${v===0 ? " sifir" : ""}"`
+                      : ["stok","kod","skt","gun","kalan_gun","kalan_ay"].includes(t) ? ' class="orta"' : "";
+  $("#bas").innerHTML = "<tr><th class=\"num\">No</th>" +
+    kolonlar.map((k,i)=>`<th${sag(k.tip)} data-i="${i}">${esc(k.ad)}${siralama.i===i?(siralama.asc?" ▲":" ▼"):""}</th>`).join("") + "</tr>";
+  document.querySelectorAll("thead th[data-i]").forEach(th => th.onclick = () => {
+    const i=+th.dataset.i; siralama = {i, asc: siralama.i===i ? !siralama.asc : true}; ciz();
+  });
+  if(!veri.length){ $("#govde").innerHTML=`<tr><td colspan="${kolonlar.length+1}" class="empty">${rapor.tarihsiz ? "Kayıt bulunamadı." : "Bu tarih aralığında kayıt bulunamadı."}</td></tr>`; return; }
+
+  const q = $("#ara").value.toLocaleLowerCase("tr");
+  let liste = veri.map((r,n)=>({r, n:n+1}));
+  if(q) liste = liste.filter(x => x.r.join(" ").toLocaleLowerCase("tr").includes(q));
+  if(siralama.i!==null){
+    const i=siralama.i, y=siralama.asc?1:-1, tip=kolonlar[i].tip;
+    const anahtar = v => (tip==="tarih" || tip==="gun") && v ? v.replace(/(\d+)\.(\d+)\.(\d+)/,"$3$2$1") : v;
+    liste.sort((a,b)=>{
+      const x=anahtar(a.r[i]), z=anahtar(b.r[i]);
+      if(x==null) return 1; if(z==null) return -1;
+      if(typeof x==="number" && typeof z==="number") return (x-z)*y;
+      return String(x).localeCompare(String(z),"tr")*y;
+    });
+  }
+  if(!liste.length){ $("#govde").innerHTML=`<tr><td colspan="${kolonlar.length+1}" class="empty">Aramaya uyan kayıt yok.</td></tr>`; return; }
+  const ac = !!detayTuru, sutun = kolonlar.length + 1;
+  $("#govde").innerHTML = liste.map(x => (ac ? `<tr class="acilir${acikDetay.has(x.r[0]) ? " acik" : ""}" data-mno="${esc(x.r[0])}" title="Seri no ve son kullanma tarihlerini görmek için tıklayın"><td class="num muted"><span class="ok">${acikDetay.has(x.r[0]) ? "▾" : "▸"}</span> ${x.n}</td>` : "<tr><td class=\"num muted\">"+x.n+"</td>") +
+    x.r.map((v,i)=> ((rapor.tikla_kopyala || [rapor.kopyala]).includes(i) && v!=null)
+      ? `<td class="num"><button class="kopya" data-v="${esc(v)}" data-ad="${esc(kolonlar[i].ad)}" title="Tıkla, kopyalansın; HBYS'de Ctrl+V ile yapıştır">${esc(v)} <span>📋</span></button></td>`
+      : `<td${sag(kolonlar[i].tip, v)}${kolonlar[i].tip==="sorunlar" ? ' class="sarmal"' : ""} title="${esc(v)}">${hucre(v, kolonlar[i].tip)}</td>`).join("") + "</tr>" +
+    (ac && acikDetay.has(x.r[0]) ? `<tr class="detay"><td colspan="${sutun}">${detayHtml(x.r[0])}</td></tr>` : "")).join("");
+  aramayiHizala();
+}
+
+document.querySelectorAll(".menu").forEach(b => b.onclick = () => raporSec(b.dataset.kod));
+document.querySelectorAll("[data-hizli]").forEach(b => b.onclick = () => hizli(b.dataset.hizli));
+$("#sorgula").onclick = sorgula;
+$("#altlar").addEventListener("click", e => { const b = e.target.closest("[data-alt]"); if(b) altListeAc(b.dataset.alt); });
+$("#ozet").addEventListener("click", e => { const b = e.target.closest("[data-alt]"); if(b) altListeAc(b.dataset.alt); });
+$("#ara").oninput = ciz;
+// --- Satır ayrıntısı: lens satırına tıklayınca seri no / SKT listesi altta açılır ---
+function detayHtml(mno){
+  const d = detayOnbellek[mno];
+  if(!d) return '<div class="muted" style="padding:10px 0">Yükleniyor…</div>';
+  if(d.hata) return `<div class="error" style="margin:8px 0">${esc(d.hata)}</div>`;
+  if(!d.satirlar.length) return '<div class="muted" style="padding:10px 0">Bu lens için seri numaralı kayıt bulunamadı.</div>';
+  return `<table class="ic"><thead><tr><th class="orta">#</th>${d.kolonlar.map(k => `<th class="orta">${esc(k.ad)}</th>`).join("")}</tr></thead><tbody>` +
+    d.satirlar.map((r,n) => `<tr><td class="orta muted">${n+1}</td>${r.map((v,i) => `<td class="orta">${hucre(v, d.kolonlar[i].tip)}</td>`).join("")}</tr>`).join("") +
+    "</tbody></table>";
+}
+async function detayAcKapa(mno){
+  if(acikDetay.has(mno)){ acikDetay.delete(mno); ciz(); return; }
+  acikDetay.add(mno); ciz();
+  if(detayOnbellek[mno] && !detayOnbellek[mno].hata) return;
+  try{ detayOnbellek[mno] = await api("api/lens_detay?malzeme_no=" + encodeURIComponent(mno)); }
+  catch(e){ detayOnbellek[mno] = {hata: e.message}; }
+  if(acikDetay.has(mno)) ciz();
+}
+$("#govde").addEventListener("click", e => {
+  if(!detayTuru || e.target.closest(".kopya, tr.detay")) return;
+  const tr = e.target.closest("tr.acilir"); if(tr) detayAcKapa(isNaN(tr.dataset.mno) ? tr.dataset.mno : Number(tr.dataset.mno));
+});
+// Kompakt düzende arama kutusunu tablodaki hedef sütunun (ör. "Lens Adı") tam üstüne hizala
+function aramayiHizala(){
+  if(!rapor || rapor.ara_hiza == null) return;
+  // açık listede "Lens Adı" sütunu hangi sıradaysa ona hizala (alt listelerde sırası farklı olabilir)
+  const lensSira = (kolonlar || []).findIndex(k => k.ad === "Lens Adı");
+  const hedef = lensSira >= 0 ? lensSira : rapor.ara_hiza;
+  const th = document.querySelector(`#bas th[data-i="${hedef}"]`), bar = $("#sonucBar");
+  if(!th || $("#araKutu").style.display === "none") return;
+  const sol = th.getBoundingClientRect().left - bar.getBoundingClientRect().left;
+  const et = $("#araEtiket");
+  et.style.width = "auto";
+  const dogal = et.scrollWidth;                                  // "LENS ARA" yazısının kendi genişliği
+  et.style.width = Math.max(sol - 12, dogal) + "px";             // 12 = etiket ile kutu arası; yazı hiç kesilmez
+  $("#ara").style.width = Math.max(th.offsetWidth, 300) + "px";
+}
+window.addEventListener("resize", aramayiHizala);
+$("#excel").onclick = () => location.href = "excel?"+parametreler();
+$("#yazdir").onclick = () => window.print();
+function panoya(metin){
+  // http (intranet) adreslerinde navigator.clipboard çalışmaz; bu yöntem her yerde çalışır
+  const a=document.createElement("textarea"); a.value=metin; a.style.position="fixed"; a.style.opacity="0";
+  document.body.appendChild(a); a.select(); document.execCommand("copy"); a.remove();
+}
+function bildir(m){
+  const d=$("#bildirim"); d.textContent=m; d.classList.add("acik");
+  clearTimeout(d._t); d._t=setTimeout(()=>d.classList.remove("acik"), 1800);
+}
+$("#govde").addEventListener("click", e => {
+  const b = e.target.closest(".kopya"); if(!b) return;
+  panoya(b.dataset.v);
+  document.querySelectorAll(".kopya.son").forEach(x=>x.classList.remove("son"));
+  b.classList.add("son");
+  bildir(`${b.dataset.ad} ${b.dataset.v} kopyalandı — HBYS'de ilgili alana Ctrl+V`);
+});
+$("#kopyala").onclick = async () => {
+  const metin = [...new Set(veri.map(r => r[rapor.kopyala]))].join("\n");
+  panoya(metin);
+  const b=$("#kopyala"), eski=b.textContent; b.textContent="✓ Kopyalandı"; setTimeout(()=>b.textContent=eski, 1500);
+};
+
+hizli("gecenay");
+raporSec(MENU[0].kod);
+</script>
+</body>
+</html>
