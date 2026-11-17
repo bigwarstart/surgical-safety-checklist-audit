@@ -1,1 +1,15 @@
-ayar.json
+# Gizli ayarlar: veritabanı şifresi içerir
+config.ini
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Dışa aktarılan raporlar (hasta verisi içerebilir)
+*.xlsx
+
+# Sistem
+.DS_Store
+Thumbs.db
